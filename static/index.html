@@ -45,32 +45,19 @@
                 <div class="output-section">
                     <div class="section-label">
                         <h3>Scraped Article Content</h3>
+                        <button id="amendBtn" class="amend-button">
+                            <span class="button-text">🤖 Amend Measurements with Animals/Sports</span>
+                            <span class="button-loader" style="display: none;">⏳ Processing...</span>
+                        </button>
                     </div>
                     <div id="articleOutput" class="article-output">
                         <p class="output-placeholder">Article content will appear here...</p>
                     </div>
                 </div>
                 
-                <div class="editor-section">
-                    <div class="section-label">
-                        <h3>Edit Article</h3>
-                    </div>
-                    <div class="editor-container">
-                        <textarea 
-                            id="articleContent" 
-                            class="article-editor"
-                            placeholder="Edit the article content here..."
-                        ></textarea>
-                    </div>
-                </div>
-                
                 <div class="ai-section">
                     <div class="section-label">
                         <h3>AI Amended Article</h3>
-                        <button id="amendBtn" class="amend-button">
-                            <span class="button-text">🤖 Amend Measurements with Animals/Sports</span>
-                            <span class="button-loader" style="display: none;">⏳ Processing...</span>
-                        </button>
                     </div>
                     <div id="amendedOutput" class="article-output amended-output">
                         <p class="output-placeholder">Click the button above to amend measurements with animal or sport comparisons...</p>

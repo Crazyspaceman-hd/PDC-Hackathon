@@ -4,8 +4,8 @@ const errorMessage = document.getElementById('errorMessage');
 const articleSection = document.getElementById('articleSection');
 const articleTitle = document.getElementById('articleTitle');
 const articleUrl = document.getElementById('articleUrl');
-const articleContent = document.getElementById('articleContent');
 const articleOutput = document.getElementById('articleOutput');
+let scrapedContent = ''; // Store raw scraped content
 const amendedOutput = document.getElementById('amendedOutput');
 const copyBtn = document.getElementById('copyBtn');
 const clearBtn = document.getElementById('clearBtn');
@@ -25,15 +25,29 @@ scrapeBtn.addEventListener('click', scrapeArticle);
 
 // Copy button
 copyBtn.addEventListener('click', () => {
-    articleContent.select();
-    document.execCommand('copy');
-    
-    // Visual feedback
-    const originalText = copyBtn.textContent;
-    copyBtn.textContent = '✓ Copied!';
-    setTimeout(() => {
-        copyBtn.textContent = originalText;
-    }, 2000);
+    const textToCopy = scrapedContent || articleOutput.textContent;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        // Visual feedback
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '✓ Copied!';
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+        }, 2000);
+    }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '✓ Copied!';
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+        }, 2000);
+    });
 });
 
 // Clear button
@@ -41,7 +55,7 @@ clearBtn.addEventListener('click', () => {
     if (confirm('Are you sure you want to clear the article?')) {
         articleSection.style.display = 'none';
         urlInput.value = '';
-        articleContent.value = '';
+        scrapedContent = '';
         articleOutput.innerHTML = '<p class="output-placeholder">Article content will appear here...</p>';
         amendedOutput.innerHTML = '<p class="output-placeholder">Click the button above to amend measurements with animal or sport comparisons...</p>';
         articleTitle.textContent = '';
@@ -57,7 +71,7 @@ amendBtn.addEventListener('click', amendArticle);
 // Download button
 downloadBtn.addEventListener('click', () => {
     const title = articleTitle.textContent || 'article';
-    const content = articleContent.value;
+    const content = scrapedContent || articleOutput.textContent;
     const url = articleUrl.textContent;
     
     const fullContent = `${title}\n\nSource: ${url}\n\n${content}`;
@@ -141,6 +155,9 @@ async function scrapeArticle() {
         articleUrl.href = data.url;
         articleUrl.target = '_blank';
         
+        // Store raw content for later use
+        scrapedContent = data.content || '';
+        
         // Populate output area
         if (data.content) {
             // Format content with proper line breaks
@@ -153,9 +170,6 @@ async function scrapeArticle() {
         } else {
             articleOutput.innerHTML = '<p class="output-placeholder">No content found</p>';
         }
-        
-        // Populate editable textarea
-        articleContent.value = data.content || '';
         
         articleSection.style.display = 'block';
         
@@ -174,10 +188,10 @@ async function scrapeArticle() {
 }
 
 async function amendArticle() {
-    const articleText = articleContent.value.trim();
+    const articleText = scrapedContent.trim();
     
     if (!articleText) {
-        showError('Please scrape an article first or enter text to amend');
+        showError('Please scrape an article first');
         return;
     }
     
