@@ -218,6 +218,12 @@ async function amendArticle() {
         const data = await response.json();
         
         if (!response.ok) {
+            // Handle specific error types
+            if (data.error_type === 'quota_exceeded') {
+                throw new Error('OpenAI API quota exceeded. Please check your OpenAI account billing and usage limits at https://platform.openai.com/usage');
+            } else if (data.error_type === 'invalid_key') {
+                throw new Error('Invalid OpenAI API key. Please check your API key configuration.');
+            }
             throw new Error(data.error || 'Failed to amend article');
         }
         
@@ -239,8 +245,15 @@ async function amendArticle() {
         
     } catch (error) {
         console.error('Error:', error);
-        showError(error.message || 'Failed to amend article. Please try again.');
-        amendedOutput.innerHTML = '<p class="output-placeholder">Error processing article. Please try again.</p>';
+        let errorMsg = error.message || 'Failed to amend article. Please try again.';
+        
+        // Show more helpful message for quota errors
+        if (error.message.includes('quota exceeded')) {
+            errorMsg = '⚠️ OpenAI API quota exceeded. Please check your billing and usage at https://platform.openai.com/usage';
+        }
+        
+        showError(errorMsg);
+        amendedOutput.innerHTML = '<p class="output-placeholder" style="color: #c33;">Error: ' + errorMsg + '</p>';
     } finally {
         // Reset button state
         amendBtn.disabled = false;

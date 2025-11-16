@@ -147,7 +147,7 @@ Article text:
 Amended article:"""
 
         response = openai_client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that adds quirky measurements to news articles relate the measurements in the article to different entities that share that attribute."},
                 {"role": "user", "content": prompt}
@@ -164,7 +164,24 @@ Amended article:"""
         }), 200
         
     except Exception as e:
-        return jsonify({"error": f"Error processing article: {str(e)}"}), 500
+        error_message = str(e)
+        
+        # Handle specific OpenAI API errors
+        if "insufficient_quota" in error_message or "429" in error_message:
+            return jsonify({
+                "error": "OpenAI API quota exceeded. Please check your OpenAI account billing and usage limits.",
+                "error_type": "quota_exceeded"
+            }), 429
+        elif "invalid_api_key" in error_message or "401" in error_message:
+            return jsonify({
+                "error": "Invalid OpenAI API key. Please check your OPENAI_API_KEY environment variable.",
+                "error_type": "invalid_key"
+            }), 401
+        
+        return jsonify({
+            "error": f"Error processing article: {error_message}",
+            "error_type": "general_error"
+        }), 500
 
 @app.route('/')
 def index():
