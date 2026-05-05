@@ -1,3 +1,6 @@
+This is is a comedic project built using AI specifically for a vibe-coding hackathon, the goal was as little human intervention as possible and redoing it with current AI models would undoubtedly produce significantly better results.
+
+
 # News Article Scraper & Editor
 
 A web application that allows users to input a news article URL, scrape the article content, and edit it in a user-friendly interface.
